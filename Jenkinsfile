@@ -80,18 +80,6 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline SUCCESS - ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
-        }
-        failure {
-            echo "Pipeline FAILED - ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
-        }
-        unstable {
-            echo "Pipeline UNSTABLE - ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
-        }
-        always {
-            cleanWs()   // clean workspace after every build
-        }
-        success {
             notify('SUCCESS')
         }
         failure {
