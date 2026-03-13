@@ -59,7 +59,7 @@ pipeline {
                 }
             }
             steps {
-                buildAndPush("${IMAGE_NAME}", "${IMAGE_TAG}")
+                buildAndPush(IMAGE_NAME.toString(), IMAGE_TAG.toString())
             }
         }
 
