@@ -91,5 +91,11 @@ pipeline {
         always {
             cleanWs()   // clean workspace after every build
         }
+        success {
+            notify('SUCCESS')
+        }
+        failure {
+            notify('FAILED')
+        }
     }
 }
