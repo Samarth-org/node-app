@@ -1,0 +1,26 @@
+# .github/workflows/main.yml
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+
+  install:
+    uses: Samarth-org/jenkins-shared-library/.github/workflows/install-deps.yml@main
+    #     ↑ org/repo                          ↑ workflow file              ↑ branch
+
+  test:
+    needs: install                            # runs after install
+    uses: Samarth-org/jenkins-shared-library/.github/workflows/run-tests.yml@main
+
+  build-push:
+    needs: test                               # runs after test
+    uses: Samarth-org/jenkins-shared-library/.github/workflows/build-and-push.yml@main
+    with:
+      image_name: samarthdoc123/jenkins-shared-library             # passing inputs
+      tag: ${{ github.run_number }}
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}   # passing secrets
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
