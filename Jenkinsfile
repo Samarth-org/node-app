@@ -22,7 +22,7 @@ pipeline {
 
         stage('Build & Push Docker') {
             steps {
-                buildAndPush('myorg/node-app', "${env.BUILD_NUMBER}")
+                buildAndPush('samarthdoc123/jenkins-shared-library', "${env.BUILD_NUMBER}")
                 //           ↑ image name     ↑ tag
             }
         }
