@@ -9,13 +9,13 @@ pipeline {
 
     environment {
         IMAGE_NAME = "samarthdoc123/node-app"
-        IMAGE_TAG  = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+        IMAGE_TAG  = "${env.GIT_BRANCH ? env.GIT_BRANCH.replaceAll('origin/', '') : 'main'}-${env.BUILD_NUMBER}"
     }
 
     options {
-        timeout(time: 30, unit: 'MINUTES')    // pipeline times out in 30 mins
-        disableConcurrentBuilds()              // no parallel builds
-        buildDiscarder(logRotator(numToKeepStr: '5'))  // keep last 5 builds
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
     stages {
@@ -53,8 +53,9 @@ pipeline {
         stage('Build & Push Docker') {
             when {
                 anyOf {
-                    branch 'main'         // only build on main
-                    branch 'dev'          // or dev branch
+                    branch 'main'
+                    expression { env.GIT_BRANCH == 'origin/main' }
+                    expression { env.BRANCH_NAME == null }
                 }
             }
             steps {
@@ -64,16 +65,20 @@ pipeline {
 
         stage('Smoke Test') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    expression { env.GIT_BRANCH == 'origin/main' }
+                    expression { env.BRANCH_NAME == null }
+                }
             }
             steps {
-                sh '''
+                sh """
                     docker run -d --name smoke-test -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
                     sleep 5
                     curl -f http://localhost:3000/health || exit 1
                     docker stop smoke-test
                     docker rm smoke-test
-                '''
+                """
             }
         }
     }
@@ -84,6 +89,12 @@ pipeline {
         }
         failure {
             notify('FAILED')
+        }
+        unstable {
+            notify('UNSTABLE')
+        }
+        always {
+            cleanWs()
         }
     }
 }
