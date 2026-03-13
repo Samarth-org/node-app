@@ -2,10 +2,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.json({
-        message: "Hello from Node.js App!",
-        status: "running"
-    });
+    res.json({ message: "Hello from Node.js App!", status: "running" });
 });
 
 app.get('/health', (req, res) => {
@@ -18,9 +15,12 @@ app.get('/add', (req, res) => {
     res.json({ result: a + b });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`App running on port ${PORT}`);
-});
+// Only start server if run directly, NOT when imported by tests
+if (require.main === module) {        // 👈 add this check
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`App running on port ${PORT}`);
+    });
+}
 
-module.exports = app;  // exported for testing
+module.exports = app;
